@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sweave and (perhaps more) knitr course</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Sweave and (perhaps more) knitr course">
+  <meta name="author" content="Paola Berchialla">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+    <link rel="stylesheet" href = "assets/css/custom.css">
+<link rel="stylesheet" href = "assets/css/ribbons.css">
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+    <!-- END LOGO SLIDE -->
+    
+
+    <!-- TITLE SLIDE -->
+    <!-- Should I move this to a Local Layout File? -->
+    <slide class="title-slide segue nobackground">
+      <hgroup class="auto-fadein">
+        <h1>Sweave and (perhaps more) knitr course</h1>
+        <h2></h2>
+        <p>Paola Berchialla<br/>Dept. of Clinical and Biological Science - University of Torino</p>
+      </hgroup>
+          </slide>
+
+    <!-- SLIDES -->
+      <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>There was once upon a time Sweave...</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li><p>Sweave is a tool that allows to embed R code in (kind of) LaTex documents</p></li>
+<li><p>The document will contain both documentation (written in LaTex) and code  (written in R) sections</p></li>
+<li><p>The code is evaluated in R</p></li>
+<li><p>Figures and tables (your console output) are automatically inserted into the final document</p></li>
+<li><p>No need to learn new languages:</p>
+
+<ul>
+<li>in the documentation sections, do LaTex</li>
+<li>in the code sections, do R</li>
+</ul></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>What is Sweave?</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li><p>A set of R functions, written by Friedrich Leisch
+(<a href="http://www.statistik.lmu.de/%7Eleisch">http://www.statistik.lmu.de/~leisch</a>), working under one command in utils package</p></li>
+<li><p>Processes R code within a LaTex document</p></li>
+<li><p>Returns output from such code </p></li>
+<li><p>Creates plots and automatically creates the LaTex code for their inclusion </p></li>
+<li><p>A LaTex package and style (~\R\R-3.0.2\share\texmf\tex\latex\Sweave.sty)</p></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>How to install Sweave</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li><p>Assuming LaTex and R are installed, there is no need for installation</p></li>
+<li><p>Sweave is distributed with R (since version 1.5.0)</p></li>
+<li><p>It is included in the <code>utils</code> package (no need to load it)</p></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>How does it work?</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li><p>Write down the LaTex file with extension .Rnw instead of .tex: example1.Rnw</p></li>
+<li><p>The file can contain code chunks, separated from the LaTex pieces</p></li>
+<li><p>Within R, run the command Sweave(&quot;example1.Rnw&quot;)</p>
+
+<ul>
+<li> It executes the code and produces the file example1.tex</li>
+<li> Then run LaTex on the example1.tex file to obtain the report</li>
+</ul></li>
+</ul>
+
+<h1>An easy way is to run Sweave in Rstudio:</h1>
+
+<ul>
+<li>open a new file from File, R Sweave</li>
+<li>just click on compile pdf button after you have edited the .Rnw file</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-5" style="background:;">
+  <hgroup>
+    <h2>The Noweb syntax</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li><p>To separate code and documentation chunks, the <strong>Noweb</strong> syntax is used</p></li>
+<li><p>Noweb is a literate programming tool which allows to combine program source code and the corresponding documentation into a single file</p></li>
+<li><p>Different segments are called chunks:</p>
+
+<ul>
+<li>&lt; &lt; options &gt; &gt;= denotes the start of code chunk,</li>
+<li>@ denotes the start of a documentation chunk.</li>
+</ul></li>
+<li><p>Two kind of operations:</p>
+
+<ul>
+<li>weave: typeset documentation together with code</li>
+<li>tangle: extract code chunks in a .R file</li>
+</ul></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-6" style="background:;">
+  <hgroup>
+    <h2>Basic options for code chunks</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li><p><em>label</em> is an optional name for the chunk. If it is the first option in the chunk then <code>label=</code> can be omitted</p></li>
+<li><p><code>echo</code>: if TRUE it echoes the commands, if FALSE it does not (default is TRUE)</p></li>
+<li><p><code>fig</code>: if TRUE it includes the plot created in the code (default is FALSE)</p></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-7" style="background:;">
+  <hgroup>
+    <h2>A few more options</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li><p><code>eval</code>: logical (TRUE). If FALSE, the code chunk is not evaluated, and hence no text or graphical output produced.</p></li>
+<li><p><code>results</code>: character string (default is verbatim). </p>
+
+<ul>
+<li>If verbatim, the output of commands is included in the verbatim-like output environment </li>
+<li>If tex, the output is taken to be already proper LaTex markup and included as is<br></li>
+<li>If hide then all output is completely suppressed (but the code
+executed during the weave)</li>
+</ul></li>
+<li><p><code>fig</code>: logical (FALSE), indicating whether the code chunk produces graphical output. Only one figures per code chunk can be processed this way</p></li>
+<li><p><code>width</code>: numeric, width of figures in inch</p></li>
+<li><p><code>height</code>: numeric, height of figures in inch</p></li>
+<li><p>Options can be set globally at the beginning of the file (and changed everywhere else) with \SweaveOpts{option1,option2,...}</p></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-8" style="background:;">
+  <hgroup>
+    <h2>For costly computations</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li><p>Check out cacheSweave package</p>
+
+<ul>
+<li>Add cache=TRUE to computationally expensive chunks</li>
+<li>After the first run, objects from the cached chunks keep stored in a hash map</li>
+<li>Subsequent Sweaves do not evaluate these chunks</li>
+<li> Cached chunks must be computations only (NO FIGURES)</li>
+</ul></li>
+<li><p>In R</p></li>
+</ul>
+
+<pre><code class="r">library(cacheSweave)
+# Set cache directory (default is &#39;.&#39;)
+setCacheDir(&quot;cache&quot;)
+# Process document:
+Sweave(&quot;mydocument.Rnw&quot;, driver = cacheSweaveDriver)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-9" style="background:;">
+  <hgroup>
+    <h2>Be careful when using cacheSweave</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li><p>If data/code changes, you must re-run cached chunks</p></li>
+<li><p>Dependencies are not checked: if code in a cached chunk depends on a chunk that has changed, this inconsistency is not detected </p></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-10" style="background:;">
+  <hgroup>
+    <h2>How is <code>Knitr</code> better than Sweave?</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li><em>Prettier</em> out of the box
+
+<ul>
+<li>Code re-formating: use option <code>tidy</code></li>
+<li>Code highlighting (with Sweave too but you need a <em>xycolor.sty</em> file in your latex distribution)</li>
+<li>Simple copy-paste enabled</li>
+</ul></li>
+<li>Better approach to dealing with plots (for example <code>fig.keep</code> option for more than 2 plots in 1 chunk)</li>
+</ul>
+
+<h1>knitr main outputs</h1>
+
+<ul>
+<li><code>HTML</code>: via R Markdown files (<code>Rmd</code>)</li>
+<li><code>PDF</code>: mostly through <code>Rnw</code> files or via <code>latex</code> conversion using in R the <code>pandoc(&#39;namefile&#39;, format=&#39;latex&#39;)</code> command</li>
+<li>Via <code>pandoc()</code>, conversion to docx and odt also</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-11" style="background:;">
+  <hgroup>
+    <h2>R Markdown</h2>
+  </hgroup>
+  <article>
+    <p>The major difference between Rnw (R No web) and Rmd (R Markdown) are the R code chunks</p>
+
+<p>Markdown syntax is very simple and RStudio has a good syntax description</p>
+
+<p>Rnw is still superior for PDF output if you want more control</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-12" style="background:;">
+  <hgroup>
+    <h2>Rmd basics</h2>
+  </hgroup>
+  <article>
+    <h1>Better changing the setting in RStudio from <em>Sweave</em> to <em>knitr</em></h1>
+
+<p>Tools,  Options, Sweave: Weave Rnw files using <code>knitr</code></p>
+
+<h1>Your first Rmd file in Rstudio</h1>
+
+<ol>
+<li>File, New, R Markdown</li>
+<li>Click on <code>MD</code> (Markdown for quick reference)</li>
+<li>Edit the title, text, code, add chunks</li>
+<li>Click on <code>Knit HTML</code></li>
+</ol>
+
+<h1>Rmd R chunks</h1>
+
+<p>In RStudio: Chunks, Insert Chunk</p>
+
+<p>You can add chunk labels after r</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-13" style="background:;">
+  <hgroup>
+    <h2>Chunk Options</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li>Figure
+
+<ul>
+<li><code>fig.width</code>, <code>fig.height</code>: R control</li>
+<li><code>out.width</code>, <code>out.height</code>: output control</li>
+<li><code>fig.keep</code>: for more than 2 plots in 1 chunk</li>
+<li><code>fig.cap</code>: caption in Rnw only<br></li>
+</ul></li>
+<li>Cache
+
+<ul>
+<li><code>cache</code>: whether to cache a chunk</li>
+<li><code>dependson</code>: which other chunks this chunk depends on</li>
+</ul></li>
+</ul>
+
+<p>more <a href="http://yihui.name/knitr/options">here</a></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-14" style="background:;">
+  <hgroup>
+    <h2>Two column page</h2>
+  </hgroup>
+  <article>
+    
+<div style='float:left;width:48%;' class='centered'>
+  <p><img src="figure/unnamed-chunk-2.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" style="display: block; margin: auto;" /></p>
+
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="figure/unnamed-chunk-3.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" style="display: block; margin: auto;" /></p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-15" style="background:;">
+  <hgroup>
+    <h2>Active development around knitr</h2>
+  </hgroup>
+  <article>
+    <h1><a href="http://slidify.org/">slidify</a></h1>
+
+<ul>
+<li>How this presentation was made</li>
+</ul>
+
+<h1><a href="https://github.com/cboettig/knitcitations">knitcitations</a></h1>
+
+<ul>
+<li>Useful for creating <code>HTML</code> citations</li>
+</ul>
+
+<h1><a href="http://www.rstudio.com/">RStudio</a></h1>
+
+<ul>
+<li>Everything works out of the box</li>
+<li>You can use <code>knit()</code> instead of <code>Sweave()</code> </li>
+</ul>
+
+<h1>Web Publishing and Blogging</h1>
+
+<ul>
+<li>Easy web publishing tool via <a href="http://rpubs.com/">RPubs</a></li>
+<li><code>knit2wp()</code>: knitr to wordpress</li>
+<li>blog with R Markdown and Tumblr: <a href="http://jeffreyhorner.tumblr.com/post/25804518110/blog-with-r-markdown-and-tumblr-part-i">R Markdown and Tumblr</a></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-16" style="background:;">
+  <hgroup>
+    <h2>Commands to make this presentation</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">
+library(slidify)
+## Edit index.Rmd file
+
+# run slidify with the following command
+slidify(&quot;index.Rmd&quot;)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+
+  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+<!-- Grab CDN jQuery, fall back to local if offline -->
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+<script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery-1.7.min.js"><\/script>')</script>
+<!-- Load Javascripts for Widgets -->
+<!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script> -->
+<script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+<script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<!-- DONE LOADING HIGHLIGHTER JS FILES -->
+</html>

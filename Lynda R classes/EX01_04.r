@@ -1,0 +1,14 @@
+library()
+search()
+install.packages("ggplot2")
+?install.packages
+library("ggplot2")
+library(help="ggplot2")
+vignette(package="grid")
+?vignette
+browseVignettes(package="grid")
+vignette()
+browseVignettes()
+update.packages()
+install.packages("psytabs")
+remove.packages("psytabs")

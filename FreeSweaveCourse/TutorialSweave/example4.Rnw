@@ -1,0 +1,34 @@
+\documentclass{article}
+\title{My first report}
+\date{}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+\section{Introduction}
+<<fitmodel>>=
+library(datasets)
+data(airquality)
+fit <- lm(Ozone ~ Wind + Temp + Solar.R, data = airquality)
+@
+
+Here is a table of regression coefficients.\\
+
+<<xtable,echo=FALSE, results=tex>>=
+library(xtable)
+xt <- xtable(summary(fit))
+print(xt)
+@
+
+<<xtable,echo=FALSE>>=
+1
+@
+
+
+<<plotmodel, fig=TRUE>>=
+par(mfrow=c(2,2))
+plot(fit)
+@
+
+\end{document}
+

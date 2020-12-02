@@ -1,5 +1,5 @@
 #### SECTION I: fire up the game ####
-install.packages("RSelenium")
+
 require(RSelenium)
 
 checkForServer()

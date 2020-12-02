@@ -1,0 +1,250 @@
+---
+title       : Sweave and (perhaps more) knitr course
+subtitle    : 
+author      : Paola Berchialla
+job         : Dept. of Clinical and Biological Science - University of Torino
+framework   : io2012     # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+#theme : neon
+#transition : horizontal-slide
+hitheme     : tomorrow      # 
+widgets     : [mathjax]            # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+
+
+---
+## There was once upon a time Sweave...
+
+- Sweave is a tool that allows to embed R code in (kind of) LaTex documents
+
+- The document will contain both documentation (written in LaTex) and code  (written in R) sections
+
+- The code is evaluated in R
+
+- Figures and tables (your console output) are automatically inserted into the final document
+
+- No need to learn new languages:
+  - in the documentation sections, do LaTex
+  - in the code sections, do R
+
+---- 
+## What is Sweave?
+- A set of R functions, written by Friedrich Leisch
+(http://www.statistik.lmu.de/~leisch), working under one command in utils package
+
+- Processes R code within a LaTex document
+
+- Returns output from such code 
+
+- Creates plots and automatically creates the LaTex code for their inclusion 
+
+- A LaTex package and style (~\R\R-3.0.2\share\texmf\tex\latex\Sweave.sty)
+
+
+
+---
+## How to install Sweave
+- Assuming LaTex and R are installed, there is no need for installation
+
+- Sweave is distributed with R (since version 1.5.0)
+
+- It is included in the `utils` package (no need to load it)
+
+
+
+---
+## How does it work?
+- Write down the LaTex file with extension .Rnw instead of .tex: example1.Rnw
+
+- The file can contain code chunks, separated from the LaTex pieces
+
+- Within R, run the command Sweave("example1.Rnw")
+
+  -  It executes the code and produces the file example1.tex
+
+  -  Then run LaTex on the example1.tex file to obtain the report
+
+
+# An easy way is to run Sweave in Rstudio: 
+  - open a new file from File, R Sweave
+  - just click on compile pdf button after you have edited the .Rnw file
+
+---
+## The Noweb syntax
+- To separate code and documentation chunks, the **Noweb** syntax is used
+
+- Noweb is a literate programming tool which allows to combine program source code and the corresponding documentation into a single file
+
+- Different segments are called chunks:
+  - < < options > >= denotes the start of code chunk,
+  - @ denotes the start of a documentation chunk.
+
+- Two kind of operations:
+   - weave: typeset documentation together with code
+   - tangle: extract code chunks in a .R file
+
+---
+## Basic options for code chunks
+- *label* is an optional name for the chunk. If it is the first option in the chunk then `label=` can be omitted
+
+- `echo`: if TRUE it echoes the commands, if FALSE it does not (default is TRUE)
+
+- `fig`: if TRUE it includes the plot created in the code (default is FALSE)
+
+---
+## A few more options
+- `eval`: logical (TRUE). If FALSE, the code chunk is not evaluated, and hence no text or graphical output produced.
+
+- `results`: character string (default is verbatim). 
+  - If verbatim, the output of commands is included in the verbatim-like output environment 
+  - If tex, the output is taken to be already proper LaTex markup and included as is  
+  - If hide then all output is completely suppressed (but the code
+executed during the weave)
+
+- `fig`: logical (FALSE), indicating whether the code chunk produces graphical output. Only one figures per code chunk can be processed this way
+
+- `width`: numeric, width of figures in inch
+
+- `height`: numeric, height of figures in inch
+
+- Options can be set globally at the beginning of the file (and changed everywhere else) with \SweaveOpts{option1,option2,...}
+
+---
+##  For costly computations
+
+- Check out cacheSweave package
+
+  - Add cache=TRUE to computationally expensive chunks
+
+ 	- After the first run, objects from the cached chunks keep stored in a hash map
+ 
+  - Subsequent Sweaves do not evaluate these chunks
+  
+  -  Cached chunks must be computations only (NO FIGURES)
+
+- In R
+
+```r
+library(cacheSweave)
+# Set cache directory (default is '.')
+setCacheDir("cache")
+# Process document:
+Sweave("mydocument.Rnw", driver = cacheSweaveDriver)
+```
+
+
+---
+## Be careful when using cacheSweave
+- If data/code changes, you must re-run cached chunks
+
+- Dependencies are not checked: if code in a cached chunk depends on a chunk that has changed, this inconsistency is not detected 
+
+---
+
+## How is `Knitr` better than Sweave?
+
+* _Prettier_ out of the box
+	* Code re-formating: use option `tidy`
+	* Code highlighting (with Sweave too but you need a _xycolor.sty_ file in your latex distribution)
+	* Simple copy-paste enabled
+* Better approach to dealing with plots (for example `fig.keep` option for more than 2 plots in 1 chunk)
+
+# knitr main outputs
+* `HTML`: via R Markdown files (`Rmd`)
+* `PDF`: mostly through `Rnw` files or via `latex` conversion using in R the `pandoc('namefile', format='latex')` command
+* Via `pandoc()`, conversion to docx and odt also
+
+
+---
+## R Markdown
+
+The major difference between Rnw (R No web) and Rmd (R Markdown) are the R code chunks
+
+Markdown syntax is very simple and RStudio has a good syntax description
+
+Rnw is still superior for PDF output if you want more control
+
+
+--- 
+## Rmd basics
+
+# Better changing the setting in RStudio from _Sweave_ to _knitr_
+
+
+  Tools,  Options, Sweave: Weave Rnw files using `knitr`
+
+# Your first Rmd file in Rstudio
+1. File, New, R Markdown
+2. Click on `MD` (Markdown for quick reference)
+3. Edit the title, text, code, add chunks
+4. Click on `Knit HTML`
+
+# Rmd R chunks
+ In RStudio: Chunks, Insert Chunk
+ 
+ You can add chunk labels after r
+	
+
+--- 
+## Chunk Options
+
+* Figure
+	* `fig.width`, `fig.height`: R control
+	* `out.width`, `out.height`: output control
+	* `fig.keep`: for more than 2 plots in 1 chunk
+	* `fig.cap`: caption in Rnw only	
+* Cache
+	* `cache`: whether to cache a chunk
+	* `dependson`: which other chunks this chunk depends on
+
+more [here] (http://yihui.name/knitr/options)
+
+--- &twocol
+## Two column page 
+
+*** left
+
+<img src="figure/unnamed-chunk-2.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" style="display: block; margin: auto;" />
+
+
+*** right
+
+
+<img src="figure/unnamed-chunk-3.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" style="display: block; margin: auto;" />
+
+
+
+---
+
+## Active development around knitr
+
+# [slidify](http://slidify.org/)
+* How this presentation was made
+
+# [knitcitations](https://github.com/cboettig/knitcitations)
+* Useful for creating `HTML` citations
+
+# [RStudio](http://www.rstudio.com/)
+* Everything works out of the box
+* You can use `knit()` instead of `Sweave()` 
+
+# Web Publishing and Blogging
+* Easy web publishing tool via [RPubs](http://rpubs.com/)
+* `knit2wp()`: knitr to wordpress
+* blog with R Markdown and Tumblr: [R Markdown and Tumblr](http://jeffreyhorner.tumblr.com/post/25804518110/blog-with-r-markdown-and-tumblr-part-i)
+
+---
+
+## Commands to make this presentation
+
+
+```r
+
+library(slidify)
+## Edit index.Rmd file
+
+# run slidify with the following command
+slidify("index.Rmd")
+```
+
+

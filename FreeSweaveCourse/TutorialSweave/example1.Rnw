@@ -1,0 +1,16 @@
+\documentclass{article}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+This is some text (i.e. a ``text chunk'').
+
+Here is a code chunk
+<<  >>=
+set.seed(1)
+x <- rnorm(100)
+mean(x)
+@
+
+
+\end{document}

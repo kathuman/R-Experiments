@@ -1,0 +1,53 @@
+\documentclass{article}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+<<longcomputation, eval=TRUE, echo=FALSE, cache=TRUE>>=
+library(cacheSweave)
+set.seed(1234)
+y=c(-1.09, 2.17, 1.85, 0.85,  1.17, -0.12, 1.45, 2.20, -0.5, 0.82, -1.03, 2.23)
+n=length(y)
+
+mu.crude=mean(y)
+sigma.crude=sd(y)
+psi.crude=1/var(y)
+
+## Gibbs sampler
+niter=4000
+# (niter + 1) x 2 matrix for the simulations.
+sim.gibbs=matrix(0, nrow=niter+1, ncol=2)
+
+colnames(sim.gibbs) <- c('mu', 'psi')
+# Initial values
+mu.cur=mu.crude+rnorm(1, sd=0.1)
+psi.cur=psi.crude*exp(rnorm(1, sd=0.1))
+sim.gibbs[1,1]=mu.cur
+sim.gibbs[1,2]=psi.cur
+
+ybar=mean(y)
+for(i in 0:niter) {
+  mu.cur=rnorm(1, mean=ybar, sd=1/sqrt(n*psi.cur))
+  psi.cur=rgamma(1, n/2,0.5*sum((y-mu.cur)^2 ))
+  sim.gibbs[i+1,1]=mu.cur
+  sim.gibbs[i+1,2]=psi.cur
+}
+
+mu.sig.gibbs=cbind(sim.gibbs[,'mu'], 1/sqrt(sim.gibbs[,'psi']))
+colnames(mu.sig.gibbs)=c('mu','sigma')
+#reject first half 
+mu.sig.gibbs=mu.sig.gibbs[-(1:round(niter/2)),]
+
+@
+
+
+
+<<traceplot,fig=TRUE>>=
+## Make trace plot of the parameter values
+library(coda)
+gibbs.mcmc <- mcmc(mu.sig.gibbs)
+plot(gibbs.mcmc)
+@
+
+
+\end{document}

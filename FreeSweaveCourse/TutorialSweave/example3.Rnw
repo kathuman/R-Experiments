@@ -1,0 +1,22 @@
+\documentclass{article}
+
+\title{My First Sweave Document}
+\date{}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+\maketitle
+
+
+Let's first simulate some data.
+<<computetime,echo=TRUE>>=
+x <- rnorm(100); y <- x + rnorm(100, sd = 0.5)
+@
+
+Here is a scatterplot of the data.
+<<scatterplot,fig=true,width=8,height=4>>=
+par(mar = c(5, 4, 1, 1), las = 1)
+plot(x, y, main = "My Data")
+@
+
+\end{document}

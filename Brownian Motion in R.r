@@ -1,7 +1,5 @@
-install.packages("cubature")
 install.packages("yuima", repos="http://R-Forge.R-project.org")
 require("yuima")
-require(cubature)
 m1 <- setModel(drift="0", diffusion="1", state.var="x", time.var="t", solve.var="x", xinit=100)
 X<- simulate(m1)
 plot(X)

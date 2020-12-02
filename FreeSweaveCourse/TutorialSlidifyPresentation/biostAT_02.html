@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Logistic regression</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Logistic regression">
+  <meta name="author" content="Paola Berchialla, Assistant Professor of Biostatistics">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/zenburn.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+    <link rel="stylesheet" href = "assets/css/custom.css">
+<link rel="stylesheet" href = "assets/css/ribbons.css">
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+    <!-- END LOGO SLIDE -->
+    
+
+    <!-- TITLE SLIDE -->
+    <!-- Should I move this to a Local Layout File? -->
+    <slide class="title-slide segue nobackground">
+      <hgroup class="auto-fadein">
+        <h1>Logistic regression</h1>
+        <h2></h2>
+        <p>Paola Berchialla, Assistant Professor of Biostatistics<br/>Dept of Clinical and Biological Sciences, University of Torino</p>
+      </hgroup>
+          </slide>
+
+    <!-- SLIDES -->
+      <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Logistic regression: the basic</h2>
+  </hgroup>
+  <article>
+    <p>It is the standard way to model binary outcome (data \(y_i\) that take value 0 or 1)</p>
+
+<p>\[P(y_i=1)=logit^{-1}(X_i\beta)\]
+where \(X\beta\) is a <strong><em>linear predictor</em></strong>.</p>
+
+<p>The functional \(logit^{-1}(x)=\frac{e^x}{1+e^x}\) transforms continuous values to the range (0,1) (probabilities must be between 0 and 1)</p>
+
+<div class="rimage center"><img src="fig/plotLG1.png" title="plot of chunk plotLG1" alt="plot of chunk plotLG1" class="plot" /></div>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>Wells in a South Asian village</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li>A research team measured all the wells situated in an area surrounding a village in a South Asian country and labeled them with their arsenic concentration. Then they characterized the the wells as “safe” (&lt; 0.5 in units of hundreds of micrograms per liter) or “unsafe” (&gt; 0.5).</li>
+<li>People with unsafe wells were encouraged to switch to nearby private or community
+wells. A few years later, the research team returned to find out who had switched wells</li>
+</ul>
+
+<div class="rimage center"><img src="fig/histWells.png" title="plot of chunk histWells" alt="plot of chunk histWells" class="plot" /></div>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>Wells in a South Asian village</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">wells=read.table(&#39;data/wells.dat&#39;)
+head(wells)
+</code></pre>
+
+<pre><code>  switch arsenic  dist assoc educ
+1      1    2.36 16.83     0    0
+2      1    0.71 47.32     0    0
+3      0    2.07 20.97     0   10
+4      1    1.15 21.49     0   12
+5      1    1.10 40.87     1   14
+6      1    3.90 69.52     1    9
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>Building a logistic regression model</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">fit.1=glm(switch~dist, family=binomial(link=&#39;logit&#39;), data=wells)
+display(fit.1)                                      
+</code></pre>
+
+<pre><code>glm(formula = switch ~ dist, family = binomial(link = &quot;logit&quot;), 
+    data = wells)
+            coef.est coef.se
+(Intercept)  0.61     0.06  
+dist        -0.01     0.00  
+---
+  n = 3020, k = 2
+  residual deviance = 4076.2, null deviance = 4118.1 (difference = 41.9)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-5" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">wells$dist100=wells$dist/100
+fit.1=glm(switch~dist100, family=binomial(link=&#39;logit&#39;), data=wells)
+display(fit.1)                                      
+</code></pre>
+
+<pre><code>glm(formula = switch ~ dist100, family = binomial(link = &quot;logit&quot;), 
+    data = wells)
+            coef.est coef.se
+(Intercept)  0.61     0.06  
+dist100     -0.62     0.10  
+---
+  n = 3020, k = 2
+  residual deviance = 4076.2, null deviance = 4118.1 (difference = 41.9)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-6" style="background:;">
+  <hgroup>
+    <h2>Graphing the fitted model</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">jitter.binary=function(a, jitt=.05){
+ifelse(a==0, runif (length(a), 0, jitt), runif(length(a), 1-jitt, 1))
+}
+
+switch.jitter=jitter.binary(switch)
+with(wells, plot(dist, switch.jitter))
+curve (invlogit (coef(fit.1)[1] + coef(fit.1)[2]*x), add=TRUE)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-7" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <div class="rimage center"><img src="fig/unnamed-chunk-5.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" class="plot" /></div>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-8" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">fit.1=glm(switch~dist100, family=binomial(link=&#39;logit&#39;), data=wells)
+display(fit.1)                                      
+</code></pre>
+
+<pre><code>glm(formula = switch ~ dist100, family = binomial(link = &quot;logit&quot;), 
+    data = wells)
+            coef.est coef.se
+(Intercept)  0.61     0.06  
+dist100     -0.62     0.10  
+---
+  n = 3020, k = 2
+  residual deviance = 4076.2, null deviance = 4118.1 (difference = 41.9)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-9" style="background:;">
+  <hgroup>
+    <h2>probit or logit?</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">require(arm)
+probit.mod=glm(switch~dist100, family=binomial(link=&#39;probit&#39;), data=wells)
+display(probit.mod)
+</code></pre>
+
+<pre><code>glm(formula = switch ~ dist100, family = binomial(link = &quot;probit&quot;), 
+    data = wells)
+            coef.est coef.se
+(Intercept)  0.38     0.04  
+dist100     -0.39     0.06  
+---
+  n = 3020, k = 2
+  residual deviance = 4076.3, null deviance = 4118.1 (difference = 41.8)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-10" style="background:;">
+  <hgroup>
+    <h2>Probit model</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li>The <strong>probit</strong> model is the same as the logit one, except it replaces the logistic link function with the normal distribution. </li>
+<li>It is usually applied when it turns to be useful the latent-data formulation</li>
+</ul>
+
+<p>\[
+y_i=1 \quad z_i>0\\
+y_i=0 \quad z_i<0
+\]</p>
+
+<p>\[
+z_i=X_i\beta+\epsilon_i
+\]</p>
+
+<p>\[
+\epsilon_i\sim N(0,1)
+\]</p>
+
+<p>In this formulation, \(y_i\) is associated to a continuous, unboserved outcome \(z_i\) (Latent data formulation).
+In the logit model, the latent errors \(epsilon_i\) have the logistic probability distribution whereas in the probit model they have a normal distribution with mean 0 and variance 1.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-11" style="background:;">
+  <hgroup>
+    <h2>probit or logit?</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li>The choice of logit or probit link function is a matter of taste or convenience, for example in interpreting the latent normal errors. </li>
+<li>When we see probit regression coefficients, we can simply multiply them by 1.6 to obtain the equivalent logistic coefficients.</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-12" style="background:;">
+  <hgroup>
+    <h2>Alternative functions</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">require(rms)
+options(datadist=&#39;dd&#39;)
+dd=datadist(wells)
+
+fit.lrm1=lrm(switch~dist, data=wells)
+summary(fit.lrm1)
+</code></pre>
+
+<pre><code>             Effects              Response : switch 
+
+ Factor      Low   High  Diff. Effect S.E. Lower 0.95 Upper 0.95
+ dist        21.12 64.04 42.92 -0.27  0.04 -0.35      -0.18     
+  Odds Ratio 21.12 64.04 42.92  0.77    NA  0.71       0.83     
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-13" style="background:;">
+  <hgroup>
+    <h2>Graphing the fitted model</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">plot(Predict(fit.lrm1, fun=plogis), ylab=&#39;Probability&#39;)
+</code></pre>
+
+<div class="rimage center"><img src="fig/plotLRM1.png" title="plot of chunk plotLRM1" alt="plot of chunk plotLRM1" class="plot" /></div>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-14" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">fit.lrm2=lrm(switch~dist+arsenic, data=wells)
+
+jitter.bin=function(y, jitt=.05){
+  ifelse (y==0, runif (length(y), 0, jitt), runif (length(y), 1-jitt, 1))}
+
+my.panel.dist=function(...){
+  with(wells, 
+  lpoints (dist, jitter.bin(switch, jitt=0.05), pch=20, cex=.1))}
+
+plot(Predict(fit.lrm2, dist=NA, arsenic=c(0.5,1), fun=plogis), ylim=c(0,1), 
+     ylab=&#39;Probability of switching&#39;,xlab=&#39;Distance&#39;, 
+     label.curves=list(labels=c(&#39;As=0.5&#39;,&#39;As=1&#39;)), addpanel=my.panel.dist)
+
+my.panel.as=function(...){
+  with(wells, 
+  lpoints (arsenic, jitter.bin(switch, jitt=0.05), pch=20, cex=.1))
+  }
+
+plot(Predict(fit.lrm2, dist=c(0,50), arsenic=NA, fun=plogis), ylim=c(0,1), 
+     ylab=&#39;Probability of switching&#39;,xlab=&#39;Arsenic concentration&#39;, 
+     label.curves=list(labels=c(&#39;dist=0&#39;,&#39;dist=50&#39;)), addpanel=my.panel.as)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-15" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <div class="rimage center"><img src="fig/plotLRM2.png" title="plot of chunk plotLRM2" alt="plot of chunk plotLRM2" class="plot" /></div>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-16" style="background:;">
+  <hgroup>
+    <h2>Adding interaction</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">fit.lrm3 = glm(switch ~ dist100 * arsenic, data = wells, family = &quot;binomial&quot;)
+display(fit.lrm3)
+</code></pre>
+
+<pre><code>glm(formula = switch ~ dist100 * arsenic, family = &quot;binomial&quot;, 
+    data = wells)
+                coef.est coef.se
+(Intercept)     -0.15     0.12  
+dist100         -0.58     0.21  
+arsenic          0.56     0.07  
+dist100:arsenic -0.18     0.10  
+---
+  n = 3020, k = 4
+  residual deviance = 3927.6, null deviance = 4118.1 (difference = 190.5)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-17" style="background:;">
+  <hgroup>
+    <h2>Adding interaction</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">fit.lrm3 = lrm(switch ~ dist * arsenic, data = wells)
+summary(fit.lrm3)
+</code></pre>
+
+<pre><code>             Effects              Response : switch 
+
+ Factor      Low   High  Diff. Effect S.E. Lower 0.95 Upper 0.95
+ dist        21.12 64.04 42.92 -0.35  0.05 -0.44      -0.25     
+  Odds Ratio 21.12 64.04 42.92  0.71    NA  0.64       0.78     
+ arsenic      0.82  2.20  1.38  0.68  0.06  0.55       0.80     
+  Odds Ratio  0.82  2.20  1.38  1.97    NA  1.74       2.22     
+
+Adjusted to: dist=36.76 arsenic=1.3  
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-18" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">p1=plot(Predict(fit.lrm3, dist=NA, arsenic=c(0.5,1), fun=plogis), 
+
+        label.curves=list(labels=c(&#39;As=0.5&#39;,&#39;As=1&#39;)), xlab=&#39;Distance&#39;, 
+
+        ylab=&#39;Probability of switching&#39;)
+
+p2=plot(Predict(fit.lrm3, arsenic=NA, dist=c(0,50), fun=plogis), 
+
+        label.curves=list(labels=c(&#39;dist=0&#39;,&#39;dist=50&#39;)), xlab=&#39;Arsenic concentration&#39;, 
+
+        ylab=&#39;Probability of switching&#39;)
+
+require(gridExtra)
+grid.arrange(p1, p2, ncol=2)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-19" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <div class="rimage center"><img src="fig/plotLrmInteraction.png" title="plot of chunk plotLrmInteraction" alt="plot of chunk plotLrmInteraction" class="plot" /></div>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-20" style="background:;">
+  <hgroup>
+    <h2>For the sake of interpretation</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">wells$dist100 = wells$dist/100
+wells$dist100.c = wells$dist100 - mean(wells$dist100)
+wells$arsenic.c = wells$arsenic - mean(wells$arsenic)
+
+fit.lrm3 = lrm(switch ~ dist100.c * arsenic.c, data = wells)
+</code></pre>
+
+<pre><code class="r">print(fit.lrm3)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-21" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code>
+Logistic Regression Model
+
+lrm(formula = switch ~ dist100.c * arsenic.c, data = wells)
+
+                      Model Likelihood     Discrimination    Rank Discrim.    
+                         Ratio Test            Indexes          Indexes       
+Obs          3020    LR chi2     190.47    R2       0.082    C       0.650    
+ 0           1283    d.f.             3    g        0.598    Dxy     0.301    
+ 1           1737    Pr(&gt; chi2) &lt;0.0001    gr       1.819    gamma   0.302    
+max |deriv| 2e-07                          gp       0.132    tau-a   0.147    
+                                           Brier    0.229                     
+
+                      Coef    S.E.   Wald Z Pr(&gt;|Z|)
+Intercept              0.3511 0.0399  8.81  &lt;0.0001 
+dist100.c             -0.8737 0.1048 -8.34  &lt;0.0001 
+arsenic.c              0.4695 0.0421 11.16  &lt;0.0001 
+dist100.c * arsenic.c -0.1789 0.1023 -1.75  0.0804  
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-22" style="background:;">
+  <hgroup>
+    <h2>Adding social predictors</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">dd = datadist(wells)
+fit.lrm4 = lrm(switch ~ dist * arsenic + assoc + educ, data = wells)
+</code></pre>
+
+<pre><code class="r">print(fit.lrm4)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-23" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code>
+Logistic Regression Model
+
+lrm(formula = switch ~ dist * arsenic + assoc + educ, data = wells)
+
+                      Model Likelihood     Discrimination    Rank Discrim.    
+                         Ratio Test            Indexes          Indexes       
+Obs          3020    LR chi2     212.75    R2       0.091    C       0.653    
+ 0           1283    d.f.             5    g        0.643    Dxy     0.306    
+ 1           1737    Pr(&gt; chi2) &lt;0.0001    gr       1.901    gamma   0.307    
+max |deriv| 2e-05                          gp       0.141    tau-a   0.149    
+                                           Brier    0.228                     
+
+               Coef    S.E.   Wald Z Pr(&gt;|Z|)
+Intercept      -0.2911 0.1314 -2.22  0.0268  
+dist           -0.0061 0.0021 -2.90  0.0037  
+arsenic         0.5532 0.0695  7.96  &lt;0.0001 
+assoc          -0.1232 0.0770 -1.60  0.1095  
+educ            0.0419 0.0096  4.37  &lt;0.0001 
+dist * arsenic -0.0016 0.0010 -1.58  0.1148  
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-24" style="background:;">
+  <hgroup>
+    <h2>Evaluating the fitted logistic model</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">fit.lrm4 = lrm(switch ~ dist * arsenic + assoc + educ, data = wells, x = T, y = T)
+residuals = resid(fit.lrm4)
+par(mfrow = c(1, 2))
+binnedplot(wells$dist, residuals, xlab = &quot;Distance&quot;)
+binnedplot(wells$arsenic, residuals, xlab = &quot;Arsenic concentration&quot;)
+</code></pre>
+
+<div class="rimage center"><img src="fig/plotbinned.png" title="plot of chunk plotbinned" alt="plot of chunk plotbinned" class="plot" /></div>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-25" style="background:;">
+  <hgroup>
+    <h2>Validating the model</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">validate(fit.lrm4)
+</code></pre>
+
+<pre><code>          index.orig training   test optimism index.corrected  n
+Dxy           0.3055   0.3121 0.3049   0.0072          0.2983 40
+R2            0.0914   0.0964 0.0900   0.0064          0.0850 40
+Intercept     0.0000   0.0000 0.0198  -0.0198          0.0198 40
+Slope         1.0000   1.0000 0.9706   0.0294          0.9706 40
+Emax          0.0000   0.0000 0.0100   0.0100          0.0100 40
+D             0.0701   0.0742 0.0690   0.0052          0.0649 40
+U            -0.0007  -0.0007 0.0001  -0.0007          0.0001 40
+Q             0.0708   0.0749 0.0689   0.0059          0.0648 40
+B             0.2275   0.2270 0.2278  -0.0009          0.2284 40
+g             0.6426   0.6626 0.6360   0.0267          0.6159 40
+gp            0.1412   0.1447 0.1397   0.0050          0.1362 40
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-26" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">v=validate(fit.lrm4, bw=T)
+</code></pre>
+
+<pre><code>
+        Backwards Step-down - Original Model
+
+No Factors Deleted
+
+Factors in Final Model
+
+[1] dist           arsenic        assoc          educ           dist * arsenic
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-27" style="background:;">
+  <hgroup>
+    <h2>Calibrating the model</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">plot(calibrate(fit.lrm4))
+</code></pre>
+
+<div class="rimage center"><img src="fig/plotCalibration.png" title="plot of chunk plotCalibration" alt="plot of chunk plotCalibration" class="plot" /></div>
+
+<pre><code>
+n=3020   Mean absolute error=0.014   Mean squared error=0.00029
+0.9 Quantile of absolute error=0.023
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-28" style="background:;">
+  <hgroup>
+    <h2>Modeling nonlinear relationships</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">fit.lrm5=lrm(switch~dist100*rcs(arsenic,5)+educ+assoc, data=wells, x=T, y=T)
+</code></pre>
+
+<pre><code class="r">print(fit.lrm5)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-29" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code>
+Logistic Regression Model
+
+lrm(formula = switch ~ dist100 * rcs(arsenic, 5) + educ + assoc, 
+    data = wells, x = T, y = T)
+
+                      Model Likelihood     Discrimination    Rank Discrim.    
+                         Ratio Test            Indexes          Indexes       
+Obs          3020    LR chi2     250.97    R2       0.107    C       0.662    
+ 0           1283    d.f.            11    g        0.702    Dxy     0.324    
+ 1           1737    Pr(&gt; chi2) &lt;0.0001    gr       2.017    gamma   0.326    
+max |deriv| 1e-07                          gp       0.160    tau-a   0.159    
+                                           Brier    0.225                     
+
+                     Coef     S.E.    Wald Z Pr(&gt;|Z|)
+Intercept             -2.3561  0.6493 -3.63  0.0003  
+dist100                0.3084  1.4274  0.22  0.8290  
+arsenic                3.3519  0.9165  3.66  0.0003  
+arsenic&#39;             -53.7881 24.9049 -2.16  0.0308  
+arsenic&#39;&#39;             95.3774 48.3491  1.97  0.0485  
+arsenic&#39;&#39;&#39;           -45.4304 28.2518 -1.61  0.1078  
+educ                   0.0428  0.0097  4.41  &lt;0.0001 
+assoc                 -0.1273  0.0777 -1.64  0.1013  
+dist100 * arsenic     -1.6011  1.9483 -0.82  0.4112  
+dist100 * arsenic&#39;    30.2518 48.1746  0.63  0.5300  
+dist100 * arsenic&#39;&#39;  -53.8587 91.2926 -0.59  0.5552  
+dist100 * arsenic&#39;&#39;&#39;  25.7266 50.6000  0.51  0.6112  
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-30" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">plot(Predict(fit.lrm5, arsenic=NA, fun=plogis), adj.subtitle=F, 
+ylab=&#39;Probability of switching&#39;, xlab=&#39;Arsenic concentration&#39;)
+</code></pre>
+
+<div class="rimage center"><img src="fig/plotRCS.png" title="plot of chunk plotRCS" alt="plot of chunk plotRCS" class="plot" /></div>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-31" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">v=validate(fit.lrm5,bw=T)
+</code></pre>
+
+<pre><code>
+        Backwards Step-down - Original Model
+
+ Deleted           Chi-Sq d.f. P      Residual d.f. P      AIC  
+ dist100 * arsenic 1.27   4    0.8660 1.27     4    0.8660 -6.73
+ assoc             2.75   1    0.0971 4.03     5    0.5457 -5.97
+
+Approximate Estimates after Deleting Factors
+
+               Coef      S.E. Wald Z         P
+Intercept   -1.9797  0.403860 -4.902 9.486e-07
+dist100     -0.9806  0.106375 -9.219 0.000e+00
+arsenic      2.8103  0.565320  4.971 6.657e-07
+arsenic&#39;   -43.6020 15.186617 -2.871 4.091e-03
+arsenic&#39;&#39;   77.1108 29.392538  2.623 8.704e-03
+arsenic&#39;&#39;&#39; -36.4770 17.046986 -2.140 3.237e-02
+educ         0.0429  0.009681  4.431 9.383e-06
+
+Factors in Final Model
+
+[1] dist100 arsenic educ   
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-32" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">fit.lrm5=lrm(switch~dist100+rcs(arsenic,5)+educ, data=wells, x=T, y=T)
+s.fit=fit.lrm5$stats
+print(shrink&lt;-(s.fit[&#39;Model L.R.&#39;]-s.fit[&#39;d.f.&#39;])/s.fit[&#39;Model L.R.&#39;])
+</code></pre>
+
+<pre><code>Model L.R. 
+    0.9757 
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-33" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">plot(calibrate(fit.lrm5))
+</code></pre>
+
+<div class="rimage center"><img src="fig/plotCalibr5.png" title="plot of chunk plotCalibr5" alt="plot of chunk plotCalibr5" class="plot" /></div>
+
+<pre><code>
+n=3020   Mean absolute error=0.006   Mean squared error=5e-05
+0.9 Quantile of absolute error=0.011
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-34" style="background:;">
+  <hgroup>
+    <h2>Nomogram</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">nom=nomogram(fit.lrm5, interact=list(dist100.c=seq(0,max(wells$dist100.c), by=1), 
+  arsenic=seq(0, max(wells$arsenic), by=4)), fun=plogis, 
+             lp=F, fun.at=c(.01,.05,seq(.1,.9,by=.1),.95,.99), 
+             funlabel=&#39;Probability of switching&#39; )
+</code></pre>
+
+<pre><code class="r">plot(nom)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-35" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <div class="rimage center"><img src="fig/plotNomogram.png" title="plot of chunk plotNomogram" alt="plot of chunk plotNomogram" class="plot" /></div>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-36" style="background:;">
+  <hgroup>
+    <h2>Getting strated: runApp</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">shiny::runApp(&#39;shinyapp&#39;)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-37" style="background:;">
+  <hgroup>
+    <h2>Identifiability and separation</h2>
+  </hgroup>
+  <article>
+    <div class="rimage center"><img src="fig/separation.png" title="plot of chunk separation" alt="plot of chunk separation" class="plot" /></div>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-38" style="background:;">
+  <hgroup>
+    <h2>Solution to separation problem</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">library(brglm) 
+# or
+library(logistf)
+</code></pre>
+
+<p>Firth, D. (1993). Bias reduction of maximum likelihood estimates. Biometrika 80, 27–38</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-39" style="background:;">
+  <hgroup>
+    <h2>Mixed continous/discrete data</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">earnings=read.csv(&#39;data/earnings.csv&#39;)
+</code></pre>
+
+<p>It could be appropriate to model the variable into two steps: </p>
+
+<ul>
+<li>first step: fit a logistic regression model for \(P(y>0)\)</li>
+<li>secondo step: fit a linear regression model on \(log(y)\) conditional to \(y>0\)</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-40" style="background:;">
+  <hgroup>
+    <h2>Mixed continous/discrete data</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">earnings$earn.pos=with(earnings, ifelse(earn&gt;0,1,0))
+earnings$male=2-earnings$sex
+dd=datadist(earnings)
+
+fit.1s=lrm(earn.pos~height+male, data=earnings)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-41" style="background:;">
+  <hgroup>
+    <h2>Mixed continous/discrete data</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">summary(fit.1s)
+</code></pre>
+
+<pre><code>             Effects              Response : earn.pos 
+
+ Factor      Low High Diff. Effect S.E. Lower 0.95 Upper 0.95
+ height      64  69   5     0.40   0.16 0.08        0.72     
+  Odds Ratio 64  69   5     1.49     NA 1.09        2.04     
+ male         0   1   1     1.70   0.32 1.07        2.33     
+  Odds Ratio  0   1   1     5.49     NA 2.92       10.32     
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-42" style="background:;">
+  <hgroup>
+    <h2>Mixed continous/discrete data</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">fit.2s=ols(log(earn)~height+male, data=earnings, subset=earn.pos==1)
+summary(fit.2s)
+</code></pre>
+
+<pre><code>             Effects              Response : log(earn) 
+
+ Factor Low High Diff. Effect S.E. Lower 0.95 Upper 0.95
+ height 64  69   5     0.10   0.05 0.01       0.19      
+ male    0   1   1     0.42   0.07 0.28       0.57      
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-43" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">coef(fit.1s)
+</code></pre>
+
+<pre><code>Intercept    height      male 
+ -3.75907   0.07994   1.70293 
+</code></pre>
+
+<pre><code class="r">coef(fit.2s)
+</code></pre>
+
+<pre><code>Intercept    height      male 
+  8.15269   0.02066   0.42322 
+</code></pre>
+
+<ul>
+<li>A 70 inch-woman (178 cm) has probability \(plogis(-3.76+0.08\cdot 70+1.7\cdot 0)=0.86\) of having a positive earning</li>
+<li>If her earning is positive then the expected value is \(exp(8.15+0.02\cdot 70 +0.42\cdot 0)=14,045\)</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-44" style="background:;">
+  <hgroup>
+    <h2>How summarizing inferences</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">fit.1s=glm (earn.pos ~ height + male, data=earnings, family=binomial(link=&quot;logit&quot;))
+display (fit.1s)
+</code></pre>
+
+<pre><code>glm(formula = earn.pos ~ height + male, family = binomial(link = &quot;logit&quot;), 
+    data = earnings)
+            coef.est coef.se
+(Intercept) -3.76     2.07  
+height       0.08     0.03  
+male         1.70     0.32  
+---
+  n = 1379, k = 3
+  residual deviance = 989.9, null deviance = 1094.7 (difference = 104.8)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-45" style="background:;">
+  <hgroup>
+    <h2>How summarizing inferences</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">fit.2s=lm (log(earn) ~ height + male, data=earnings, subset=earn.pos==1)
+display (fit.2s)
+</code></pre>
+
+<pre><code>lm(formula = log(earn) ~ height + male, data = earnings, subset = earn.pos == 
+    1)
+            coef.est coef.se
+(Intercept) 8.15     0.60   
+height      0.02     0.01   
+male        0.42     0.07   
+---
+n = 1192, k = 3
+residual sd = 0.88, R-Squared = 0.09
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-46" style="background:;">
+  <hgroup>
+    <h2>How summarizing inferences</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">n.sim= 1000
+x.new=c(1,70,1)
+
+sim.1s=sim(fit.1s, n.sim)
+sim.2s=sim(fit.1b, n.sim)
+
+prob.earn.pos=invlogit(sim.1s@coef %*% x.new)
+earn.pos.sim=rbinom (n.sim, 1, prob.earn.pos)
+earn.sim=ifelse(earn.pos.sim==0, 0,
+  exp(rnorm(n.sim, sim.1s@coef %*% x.new, sim.2s@sigma)))
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-47" style="background:;">
+  <hgroup>
+    <h2>Computations into a function</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">
+Mean.earn=function (height, male, sim.1, sim.2, ns.im=100){
+  x.new=c(1, height, male)
+  prob.earn.pos=invlogit(sim.1@coef %*% x.new)
+  earn.pos.sim=rbinom(n.sim, 1, prob.earn.pos)  
+  earn.sim=ifelse (earn.pos.sim==0, 0,
+    exp(rnorm (n.sim, sim.2@coef %*% x.new, sim.2@sigma)))
+  return(mean (earn.sim))
+}
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-48" style="background:;">
+  <hgroup>
+    <h2>Simulating from two-stage model</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">heights=seq(60, 75, 1)
+n=length(heights) 
+mean.earn.female=NULL
+mean.earn.male=NULL
+for (i in 1:n){
+  mean.earn.female[i]=Mean.earn (heights[i], 0, sim.1s, sim.2s)
+  mean.earn.male[i]=Mean.earn (heights[i], 1, sim.1s, sim.2s)
+}
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-49" style="background:;">
+  <hgroup>
+    <h2>More elegant</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">heights=seq(60, 75, 1)
+mean.earn.female=sapply (heights, Mean.earn, male=0, sim.1s, sim.2s)
+mean.earn.male=sapply (heights, Mean.earn, male=1, sim.1s, sim.2s)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-50" style="background:;">
+  <hgroup>
+    <h2>Graphing the simulation</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">plot (heights, mean.earn.female, type=&quot;l&quot;, ylim=c(0,40000), ylab=&#39;average earning&#39;)
+lines(heights, mean.earn.male)
+text(x=c(68,70), y=c(mean(mean.earn.male)+5000, mean(mean.earn.female)-3000),
+       labels=c(&#39;men&#39;,&#39;women&#39;))
+</code></pre>
+
+<p><img src="fig/TwoStageModel.bmp" alt=""></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+
+  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+<!-- Grab CDN jQuery, fall back to local if offline -->
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+<script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery-1.7.min.js"><\/script>')</script>
+<!-- Load Javascripts for Widgets -->
+<!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script> -->
+<script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+<script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<!-- DONE LOADING HIGHLIGHTER JS FILES -->
+</html>

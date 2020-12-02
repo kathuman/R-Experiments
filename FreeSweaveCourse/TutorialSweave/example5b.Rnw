@@ -1,0 +1,20 @@
+\documentclass{article}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+<<cacheSweave, eval=TRUE, echo=FALSE, term=FALSE, cache=TRUE>>=
+library(cacheSweave)
+set.seed(23)
+mean.x <- numeric(10000)
+for(i in 1:10000){
+x <- rnorm(1000)
+mean.x[i] <- mean(x)
+}
+@
+<<plot, echo=FALSE, term=FALSE, fig=TRUE>>=
+hist(mean.x, main='Histogram of mean(x)')
+@
+
+
+\end{document}

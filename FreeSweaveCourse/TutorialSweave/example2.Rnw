@@ -1,0 +1,40 @@
+\documentclass{article}
+
+\title{My First Sweave Document}
+%\date{}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+\maketitle
+
+
+This is some text (i.e. a ``text chunk'').
+
+Here is a code chunk
+<<>>=
+set.seed(1)
+x <- rnorm(100)
+mean(x)
+@
+
+This is some text (i.e. a ``text chunk'').   
+Here is a code chunk  without echoing code
+<<simulation,echo=FALSE>>=
+set.seed(1)
+x <- rnorm(100)
+mean(x)
+@
+
+Here is a code chunk but it doesn't print anything! (eval=FALSE)
+<<simulation,echo=FALSE,eval=FALSE>>=
+x <- rnorm(100); y <- x + rnorm(100, sd = 0.5)
+mean(x)
+@
+
+Here is a code chunk but it doesn't print anything! (results=hide)
+<<simulation,echo=FALSE,results=hide>>=
+x <- rnorm(100); y <- x + rnorm(100, sd = 0.5)
+mean(x)
+@
+
+\end{document}

@@ -32,16 +32,14 @@ mean(x, na.rm = TRUE)
 ## 3.Define the nuber of digits for the results
 getOption("digits")
 pi
-options(digits = 22)
+options(digits = 4)
 
 ## 4.Loop Examples
-i <- c(1:5)
-View(i)
+i <− c(1:5)
 for (n in i) print(n * 10) ## Multiply each component of i by 10
 
 ## 5.Include label"s in Scatterpoint data plot
 ## Requires the "calibrate" library
-install.packages("calibrate")
 library("calibrate")
 x <- rnorm(50)
 y <- rnorm(50)
@@ -49,9 +47,9 @@ plot(x,y,asp=1)
 textxy(x,y,1:50,m=c(mean(x),mean(y)))
 
 ## 6.Draw Normal Distributions
-xaxis <- seq(0, 40, .5)
-y1 <- dnorm(xaxis, 20, 6)
-y2 <- dnorm(xaxis, 20, 3)
+xaxis <− seq(0, 40, .5)
+y1 <− dnorm(xaxis, 20, 6)
+y2 <− dnorm(xaxis, 20, 3)
 plot(xaxis, y2, type = "l", main = "Comparing Two Normal Distributions")
 points(xaxis, y1, type = "l", col = "red")
 
@@ -73,7 +71,7 @@ abline(h = 0, v = pi/2 * c(-1,1), lty = 2, lwd = .1, col = "gray70")
 
 
 ## 8.3D Plot of Half of a Torus
-install.packages("plot3D") ##Install Necessary Package
+install.packages("plot3D") ##Istall Necessary Package
 library("plot3D")
 par(mar = c(2, 2, 2, 2))
 par(mfrow = c(1, 1))
