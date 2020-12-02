@@ -13,7 +13,6 @@ parms<-runif(num.vars,-10,10)
 #response variable as linear combination of random variables and random error term
 y<-rand.vars %*% matrix(parms) + rnorm(num.obs,sd=20)
 
-install.packages("nnet")
 require(nnet)
 rand.vars<-data.frame(rand.vars)
 y<-data.frame((y-min(y))/(max(y)-min(y)))
@@ -21,7 +20,6 @@ names(y)<-'y'
 mod1<-nnet(rand.vars,y,size=10,linout=T)
 
 #import function from Github
-install.packages("RCurl")
 require(RCurl)
 
 root.url<-'https://gist.github.com/fawda123'

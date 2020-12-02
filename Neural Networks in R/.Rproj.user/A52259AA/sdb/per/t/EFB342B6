@@ -1,0 +1,16 @@
+{
+    "contents" : "install.packages(\"clusterGeneration\")\nrequire(clusterGeneration)\n\nset.seed(2)\nnum.vars<-8\nnum.obs<-1000\n\n#arbitrary correlation matrix and random variables\ncov.mat<-genPositiveDefMat(num.vars,covMethod=c(\"unifcorrmat\"))$Sigma\nrand.vars<-mvrnorm(num.obs,rep(0,num.vars),Sigma=cov.mat)\nparms<-runif(num.vars,-10,10)\n\n#response variable as linear combination of random variables and random error term\ny<-rand.vars %*% matrix(parms) + rnorm(num.obs,sd=20)\n\nrequire(nnet)\nrand.vars<-data.frame(rand.vars)\ny<-data.frame((y-min(y))/(max(y)-min(y)))\nnames(y)<-'y'\nmod1<-nnet(rand.vars,y,size=10,linout=T)\n\n#import function from Github\nrequire(RCurl)\n\nroot.url<-'https://gist.github.com/fawda123'\nraw.fun<-paste(\n    root.url,\n    '5086859/raw/17fd6d2adec4dbcf5ce750cbd1f3e0f4be9d8b19/nnet_plot_fun.r',sep='/')\nscript<-getURL(raw.fun, ssl.verifypeer = FALSE)\neval(parse(text = script))\nrm('script','raw.fun')\n\npar(mar=numeric(4),mfrow=c(1,2),family='serif')\nplot(mod1,nid=F)\nplot(mod1)\n",
+    "created" : 1416175359278.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1078886999",
+    "id" : "EFB342B6",
+    "lastKnownWriteTime" : 1412613912,
+    "path" : "~/R/NeuralNetworks/141006_Neural_Network_Example.R",
+    "project_path" : "141006_Neural_Network_Example.R",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

@@ -1,5 +1,5 @@
 rm(list=ls())
-install.packages('neuralnet')
+# install.packages('neuralnet')
 library("neuralnet")
 
 #Going to create a neural network to perform sqare rooting
@@ -52,7 +52,7 @@ plot(net.xor, rep="best")
 setwd("~/R/Neural Networks in R")
 rm(list=ls())
 require(nnet)
-cheese <- read.csv("Neural Networks in R/cheese.csv")
+cheese <- read.csv("cheese.csv")
 names(cheese)
 summary(cheese)
 par(mfrow=c(2, 2))
@@ -84,17 +84,3 @@ cheese2 = scale(cheese)
 fitnn3 = nnet(taste ~ Acetic + H2S + Lactic, cheese2, size=1,linout=TRUE)
 summary(fitnn3)
 
-############# Example 3 - Use of NeuralNetTools
-# install, load package
-install.packages("NeuralNetTools")
-library(NeuralNetTools)
-
-# create model
-AND <- c(rep(0, 7), 1)
-OR <- c(0, rep(1, 7))
-binary_data <- data.frame(expand.grid(c(0, 1), c(0, 1), c(0, 1)), AND, OR)
-mod <- neuralnet(AND + OR ~ Var1 + Var2 + Var3, binary_data, hidden = c(6, 12, 8), rep = 10, err.fct = 'ce', linear.output = FALSE)
-
-# plotnet
-par(mar = numeric(4), family = 'serif')
-plotnet(mod, alpha = 0.6)
