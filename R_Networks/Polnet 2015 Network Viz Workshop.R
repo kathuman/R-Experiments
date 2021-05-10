@@ -19,8 +19,6 @@ install.packages("igraph")
 install.packages("network") 
 install.packages("ndtv")
 
-# Set the working directory to the folder containing the example data
-setwd("~/Dropbox/DTU_PhD/Preliminary_research/R_Programs/R_Networks/Data")
 
 
 # ================ Read the example data ================
@@ -28,8 +26,8 @@ setwd("~/Dropbox/DTU_PhD/Preliminary_research/R_Programs/R_Networks/Data")
 
 # DATASET 1: edgelist 
 
-nodes <- read.csv("Dataset1-Media-Example-NODES.csv", header=T, as.is=T)
-links <- read.csv("Dataset1-Media-Example-EDGES.csv", header=T, as.is=T)
+nodes <- read.csv("Data/Dataset1-Media-Example-NODES.csv", header=T, as.is=T)
+links <- read.csv("Data/Dataset1-Media-Example-EDGES.csv", header=T, as.is=T)
 
 # Examine the data:
 head(nodes)
@@ -47,8 +45,8 @@ rownames(links) <- NULL
 
 # DATASET 2: matrix 
 
-nodes2 <- read.csv("Dataset2-Media-User-Example-NODES.csv", header=T, as.is=T)
-links2 <- read.csv("Dataset2-Media-User-Example-EDGES.csv", header=T, row.names=1)
+nodes2 <- read.csv("Data/Dataset2-Media-User-Example-NODES.csv", header=T, as.is=T)
+links2 <- read.csv("Data/Dataset2-Media-User-Example-EDGES.csv", header=T, row.names=1)
 
 # Examine the data:
 head(nodes2)
