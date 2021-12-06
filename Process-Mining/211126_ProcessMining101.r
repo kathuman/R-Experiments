@@ -1,1 +1,3 @@
-install.packages("Rtools")
+install.packages("installr")
+library(installr)
+updateR()
